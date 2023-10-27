@@ -135,9 +135,9 @@ class TCNAE:
 
         model = Model(inputs=[i], outputs=[o])
 
-        adam = optimizers.Adam(lr=self.lr, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=True)
+        adam = optimizers.Adam(learning_rate=self.lr, beta_1=0.9, beta_2=0.999, epsilon=1e-08,  amsgrad=True)
         model.compile(loss=self.loss, optimizer=adam, metrics=[self.loss])
-        if verbose > 1:
+        if verbose >= 1:
             model.summary()
         self.model = model
     
@@ -154,7 +154,7 @@ class TCNAE:
         history = self.model.fit(train_X, train_Y, 
                             batch_size=batch_size, 
                             epochs=epochs, 
-                            validation_split=0.001, 
+                            validation_split=0.01, 
                             shuffle=True,
                             callbacks=my_callbacks,
                             verbose=keras_verbose)

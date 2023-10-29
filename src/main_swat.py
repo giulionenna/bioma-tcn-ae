@@ -10,7 +10,7 @@ import data_swat # data.py: Allows to generate anomalous Mackey-Glass (MG) time 
 
 # %%
 train_ts_id = 1 # [1-10]. Train the model on Mackey-Glass time series 1
-data_gen = data_swat.DataSwat(window_length = 1000, ratio = 0.2)
+data_gen = data_swat.DataSwat(window_length = 1050, ratio = 0.2)
 train_data = data_gen.build_data() # Returns a dictionary
 train_X = train_data["train_X"] # We only need train_X (input = output) for the training process
 print("train_X.shape:", train_X.shape) # A lot of training sequences of length 1050 and dimension 1

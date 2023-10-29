@@ -50,7 +50,8 @@ class TCNAE:
                  loss = 'logcosh',
                  use_early_stopping = False,
                  error_window_length = 128,
-                 verbose = 1
+                 verbose = 1,
+                 debug = False
                 ):
         """
         Parameters
@@ -79,6 +80,7 @@ class TCNAE:
         self.loss = loss
         self.use_early_stopping = use_early_stopping
         self.error_window_length = error_window_length
+        self.debug = debug
         
         # build the model
         self.build_model(verbose = verbose)
@@ -136,9 +138,10 @@ class TCNAE:
         model = Model(inputs=[i], outputs=[o])
 
         adam = optimizers.Adam(learning_rate=self.lr, beta_1=0.9, beta_2=0.999, epsilon=1e-08,  amsgrad=True)
-        model.compile(loss=self.loss, optimizer=adam, metrics=[self.loss])
+        model.compile(loss=self.loss, optimizer=adam, metrics=[self.loss], run_eagerly = self.debug)
         if verbose >= 1:
             model.summary()
+            tensorflow.keras.utils.plot_model(model, show_shapes=True)
         self.model = model
     
     def fit(self, train_X, train_Y, batch_size=32, epochs=40, verbose = 1):

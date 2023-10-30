@@ -99,3 +99,43 @@ def plot_results(data, anomaly_score, pl_range = None, plot_signal = False, plot
 
     plt.xlim(pl_range);
     plt.draw()
+
+def plot_results_swat(data_X, labels, anomaly_score, pl_range = None, plot_signal = False, plot_anomaly_score = True):
+    #anomaly_score = results["anomaly_score"]
+    series = data_X[0,:,:]
+    extend_window = 0
+    my_alpha = 0.15
+    cols = ["value"]
+    if pl_range is None:
+        pl_range = (0,series.shape[0])
+        extend_window = 10 # extend anomaly window, just to see something in the plot
+        my_alpha = 0.4
+    plt.figure(figsize=(25,8))
+    if plot_signal:
+        plt.plot(series.values, zorder=1)
+        plt.ylim((series.values.min(),series.values.max()));
+    if plot_anomaly_score:
+        plt.plot(anomaly_score, 'b-', zorder=2)
+
+    real_anoms = get_anomaly_windows(labels)
+    
+    for i in real_anoms:
+        plt.axvspan(i[0]-extend_window,i[1]+extend_window, ymin=0.0, ymax=50, alpha=my_alpha, color='red')
+        
+    #ignorable_win = get_anomaly_windows(data['is_ignoreable'])
+    #for i in ignorable_win:
+    #    plt.axvspan(i[0],i[1], ymin=0.0, ymax=50, alpha=my_alpha, color='yellow')
+        
+    # Choose the threshold as the smallest possible value that would not produce a false positive
+    anoms = ((labels==1))
+    extd = sorted(list(set(numpy.where(anoms)[0]) | set(numpy.where(anoms)[0] + 250) | set(numpy.where(anoms)[0] - 250)))
+    idx = numpy.array(extd)
+    idx = idx[(idx>=0) & (idx<anomaly_score.shape[0])]
+    ignore = (numpy.ones(anomaly_score.shape[0]) == 1)
+    ignore[idx] = False
+    artifical_threshold = anomaly_score[ignore].max()
+    #if plot_anomaly_score:
+    #    plt.axhline(y=artifical_threshold, xmin=0.0, xmax=650000, color='r')
+
+    plt.xlim(pl_range);
+    plt.draw()

@@ -46,15 +46,15 @@ class DataSwat:
         norm_feature = norm_feature.dropna(axis=1)
         norm_feature = norm_feature.iloc[:int(self.ratio*len(norm_feature)), :int(self.ratio*norm_feature.shape[1])]
         n_sensor = len(norm_feature.columns)
-        train_df = norm_feature.iloc[:int(0.8*len(norm_feature))]
-        train_label = data.label.iloc[:int(0.8*len(norm_feature))]
+        train_df = norm_feature.iloc[:int(0.6*len(norm_feature))]
+        train_label = data.label.iloc[:int(0.6*len(norm_feature))]
         
-        test_df = norm_feature.iloc[int(0.8*len(norm_feature)):]
-        test_label = data.label.iloc[int(0.8*len(norm_feature)):]
+        test_df = norm_feature.iloc[int(0.6*len(norm_feature)):]
+        test_label = data.label.iloc[int(0.6*len(norm_feature)):]
 
         X_train = self.slide_window(train_df, self.window_length, self.window_stride)
-        X_test = self.slide_window(test_df, self.window_length, self.window_stride)
-        return {'train_X': X_train, 'test_X': X_test}
+        X_test = test_df.values[np.newaxis, :, :] 
+        return {'train_X': X_train, 'test_X': X_test, 'test_labels': test_label.values}
 
     def slide_window(self, df: pd.DataFrame, wl: int, stride: int):
         n_subseq =int(np.floor((df.shape[0]-wl)/stride)+1) #DA VERIFICARE

@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 class DataSwat:    
     def __init__(self,
-                 data_path = "../data/swat/SWaT_Dataset_Attack_v0.csv",
+                 data_path = "./data/swat/SWaT_Dataset_Attack_v0.csv",
                  series_length = 100000,
                  num_anomalies = 10,
                  min_anomaly_distance = 2000,
@@ -36,7 +36,7 @@ class DataSwat:
         data = data.rename(columns={"Normal/Attack":"label"})
         data.label[data.label!="Normal"]=1
         data.label[data.label=="Normal"]=0
-        data = data.drop('Timestamp', axis=1)
+        data = data.drop(' Timestamp', axis=1)
         #data = data.set_index("Timestamp")
 
         feature = data.iloc[:,:51]

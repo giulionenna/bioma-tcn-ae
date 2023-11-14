@@ -10,7 +10,7 @@ import data_swat # data.py: Allows to generate anomalous Mackey-Glass (MG) time 
 
 # %%
 train_ts_id = 1 # [1-10]. Train the model on Mackey-Glass time series 1
-data_gen = data_swat.DataSwat(window_length = 50, ratio = 1)
+data_gen = data_swat.DataSwat(window_length = 50, ratio = 1, window_stride=50)
 train_data = data_gen.build_data() # Returns a dictionary
 train_X = train_data["train_X"] # We only need train_X (input = output) for the training process
 print("train_X.shape:", train_X.shape) # A lot of training sequences of length 1050 and dimension 1
@@ -23,7 +23,7 @@ K.clear_session()
 
 # Build and compile the model
 #
-tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16)) # Use the parameters specified in the paper
+tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16), latent_sample_rate=50) # Use the parameters specified in the paper
 
 #
 # Train TCN-AE for 10 epochs. For a better accuracy 
@@ -31,7 +31,7 @@ tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16)) # Use 
 # The training takes about 3-4 minutes for 10 epochs, 
 # and 15 minutes for 40 epochs (on Google CoLab, with GPU enabled)
 #
-tcn_ae.fit(train_X, train_X, batch_size=8, epochs=10, verbose=1)
+tcn_ae.fit(train_X, train_X, batch_size=64, epochs=10, verbose=1)
 
 # %%
 

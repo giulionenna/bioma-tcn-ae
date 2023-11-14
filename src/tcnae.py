@@ -141,7 +141,7 @@ class TCNAE:
         model.compile(loss=self.loss, optimizer=adam, metrics=[self.loss], run_eagerly = self.debug)
         if verbose >= 1:
             model.summary()
-            tensorflow.keras.utils.plot_model(model, show_shapes=True)
+            #tensorflow.keras.utils.plot_model(model, show_shapes=True)
         self.model = model
     
     def fit(self, train_X, train_Y, batch_size=32, epochs=40, verbose = 1):

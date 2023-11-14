@@ -15,7 +15,7 @@ class DataSwat:
                  error_window_length = 128,
                  input_columns = ["value"],
                  scale_method = "StandardScaler", # [None, "MinMaxScaler", "StandardScaler"]
-                 training_split = 1.0,
+                 training_split = 0.8,
                  ratio = 1
                 ):
         
@@ -46,11 +46,11 @@ class DataSwat:
         norm_feature = norm_feature.dropna(axis=1)
         norm_feature = norm_feature.iloc[:int(self.ratio*len(norm_feature)), :int(self.ratio*norm_feature.shape[1])]
         n_sensor = len(norm_feature.columns)
-        train_df = norm_feature.iloc[:int(0.6*len(norm_feature))]
-        train_label = data.label.iloc[:int(0.6*len(norm_feature))]
+        train_df = norm_feature.iloc[:int(self.training_split*len(norm_feature))]
+        train_label = data.label.iloc[:int(self.training_split*len(norm_feature))]
         
-        test_df = norm_feature.iloc[int(0.6*len(norm_feature)):]
-        test_label = data.label.iloc[int(0.6*len(norm_feature)):]
+        test_df = norm_feature.iloc[int(self.training_split*len(norm_feature)):]
+        test_label = data.label.iloc[int(self.training_split*len(norm_feature)):]
 
         X_train = self.slide_window(train_df, self.window_length, self.window_stride)
         X_test = test_df.values[np.newaxis, :, :] 

@@ -18,41 +18,12 @@ args = parser.parse_args()
 
 # If you have several GPUs, select one or more here (in a list)
 #select_gpus(0)
-IN_COLAB = 'google.colab' in str(get_ipython())
-if IN_COLAB:
-    print('Running on Google CoLab!')
-else:
-    print('Not running on Google CoLab!')
 
-import os
-if IN_COLAB:
-    !pip3 install keras-tcn
-    if not os.path.exists('/content/bioma-tcn-ae/'):
-        print("Repo not cloned yet. Do it now!")
-        !git clone https://github.com/MarkusThill/bioma-tcn-ae /content/bioma-tcn-ae/
-    else:
-        print("Repository already cloned!")
-
-#
-# In Google CoLab: Change the working directory to bioma-tcn-ae/src
-#
-if IN_COLAB and os.getcwd() != "/content/bioma-tcn-ae/src":
-  # Print the current working directory
-  print("Old working directory: {0}".format(os.getcwd()))
-
-  # Change the current working directory
-  os.chdir('/content/bioma-tcn-ae/src')
-
-  # Print the current working directory
-  print("New working directory: {0}".format(os.getcwd()))
-
-if IN_COLAB:
-    %tensorflow_version 2.x
-    import tensorflow as tf
-    device_name = tf.test.gpu_device_name()
-    if device_name != '/device:GPU:0':
-        raise SystemError('GPU device not found')
-    print('Found GPU at: {}'.format(device_name))
+import tensorflow as tf
+device_name = tf.test.gpu_device_name()
+if device_name != '/device:GPU:0':
+    raise SystemError('GPU device not found')
+print('Found GPU at: {}'.format(device_name))
 
 # %%
 train_ts_id = 1 # [1-10]. Train the model on Mackey-Glass time series 1

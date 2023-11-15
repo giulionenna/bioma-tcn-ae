@@ -40,7 +40,7 @@ K.clear_session()
 
 # Build and compile the model
 #
-tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16), latent_sample_rate=args.window_length) # Use the parameters specified in the paper
+tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16, 32), latent_sample_rate=args.window_length, nb_filters=50) # Use the parameters specified in the paper
 
 #
 # Train TCN-AE for 10 epochs. For a better accuracy 

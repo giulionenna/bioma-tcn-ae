@@ -7,10 +7,10 @@ import data_swat # data.py: Allows to generate anomalous Mackey-Glass (MG) time 
 import argparse
 
 parser = argparse.ArgumentParser(description="Train the model on the swat dataset")
-parser.add_argument("--window_length", default=50)
-parser.add_argument("--window_stride", default=25)
-parser.add_argument("--epochs", default=5)
-parser.add_argument("--batch_size", default=64)
+parser.add_argument("--window_length", type=int, default=50)
+parser.add_argument("--window_stride",type=int, default=25)
+parser.add_argument("--epochs", type=int, default=5)
+parser.add_argument("--batch_size", type=int, default=64)
 
 args = parser.parse_args()
 

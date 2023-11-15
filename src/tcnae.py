@@ -185,8 +185,8 @@ class TCNAE:
         X_rec =  self.model.predict(test_X)
         
         # do some padding in the end, since not necessarily the whole time series is reconstructed
-        X_rec = numpy.pad(X_rec, ((0,0),(0, test_X.shape[1] - X_rec.shape[1] ), (0,0)), 'constant') 
-        from sklearn.metrics.pairwise import cosine_similarity
-        anomaly_score = cosine_similarity(X_rec.squeeze(), test_X.squeeze())
-        
+        X_rec = numpy.pad(X_rec, ((0,0),(0, test_X.shape[1] - X_rec.shape[1] ), (0,0)), 'constant')         
+        anomaly_score = tensorflow.keras.losses.mean_squared_error(test_X, X_rec)
+        anomaly_score = tensorflow.squeeze(anomaly_score)
+        anomaly_score = pandas.Series(anomaly_score)
         return anomaly_score

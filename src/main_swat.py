@@ -4,13 +4,59 @@ import time
 from utilities import select_gpus, plot_results_swat# utilities.py: Contains a few miscellaneous functions 
 from tcnae import TCNAE # tcnae.py: Specification of the TCN-AE model
 import data_swat # data.py: Allows to generate anomalous Mackey-Glass (MG) time series 
+import argparse
+
+parser = argparse.ArgumentParser(description="Train the model on the swat dataset")
+parser.add_argument("--window_length", default=50)
+parser.add_argument("--window_stride", default=25)
+parser.add_argument("--epochs", default=5)
+parser.add_argument("--batch_size", default=64)
+
+args = parser.parse_args()
+
+
 
 # If you have several GPUs, select one or more here (in a list)
 #select_gpus(0)
+IN_COLAB = 'google.colab' in str(get_ipython())
+if IN_COLAB:
+    print('Running on Google CoLab!')
+else:
+    print('Not running on Google CoLab!')
+
+import os
+if IN_COLAB:
+    !pip3 install keras-tcn
+    if not os.path.exists('/content/bioma-tcn-ae/'):
+        print("Repo not cloned yet. Do it now!")
+        !git clone https://github.com/MarkusThill/bioma-tcn-ae /content/bioma-tcn-ae/
+    else:
+        print("Repository already cloned!")
+
+#
+# In Google CoLab: Change the working directory to bioma-tcn-ae/src
+#
+if IN_COLAB and os.getcwd() != "/content/bioma-tcn-ae/src":
+  # Print the current working directory
+  print("Old working directory: {0}".format(os.getcwd()))
+
+  # Change the current working directory
+  os.chdir('/content/bioma-tcn-ae/src')
+
+  # Print the current working directory
+  print("New working directory: {0}".format(os.getcwd()))
+
+if IN_COLAB:
+    %tensorflow_version 2.x
+    import tensorflow as tf
+    device_name = tf.test.gpu_device_name()
+    if device_name != '/device:GPU:0':
+        raise SystemError('GPU device not found')
+    print('Found GPU at: {}'.format(device_name))
 
 # %%
 train_ts_id = 1 # [1-10]. Train the model on Mackey-Glass time series 1
-data_gen = data_swat.DataSwat(window_length = 50, ratio = 1, window_stride=500, error_window_length=25)
+data_gen = data_swat.DataSwat(window_length = args.window_length, ratio = 1, window_stride=args.window_stride, error_window_length=25)
 train_data = data_gen.build_data() # Returns a dictionary
 train_X = train_data["train_X"] # We only need train_X (input = output) for the training process
 print("train_X.shape:", train_X.shape) # A lot of training sequences of length 1050 and dimension 1
@@ -23,7 +69,7 @@ K.clear_session()
 
 # Build and compile the model
 #
-tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16), latent_sample_rate=50) # Use the parameters specified in the paper
+tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16), latent_sample_rate=100) # Use the parameters specified in the paper
 
 #
 # Train TCN-AE for 10 epochs. For a better accuracy 
@@ -31,7 +77,7 @@ tcn_ae = TCNAE(ts_dimension=train_X.shape[2], dilations=(1, 2, 4, 8, 16), latent
 # The training takes about 3-4 minutes for 10 epochs, 
 # and 15 minutes for 40 epochs (on Google CoLab, with GPU enabled)
 #
-tcn_ae.fit(train_X, train_X, batch_size=64, epochs=1, verbose=1)
+tcn_ae.fit(train_X, train_X, batch_size=args.batch_size, epochs=args.epochs, verbose=1)
 
 # %%
 
@@ -53,7 +99,7 @@ anomaly_score = tcn_ae.predict_cosine(test_X)
 print("> Time:", round(time.time() - start_time), "seconds.")
 
 # %%
-
+ 
 
 # %%
 #
@@ -65,13 +111,15 @@ print("> Time:", round(time.time() - start_time), "seconds.")
 # The red horizontal line indicates a simple threshold, which is the smallest possible value that would not produce a false positive
 
 #
+from sklearn.metrics import roc_auc_score
 plot_results_swat(test_X, test_labels, anomaly_score, pl_range = None, plot_signal = False, plot_anomaly_score = True)
-
+auc_roc = roc_auc_score((test_labels==1), anomaly_score )
+print(auc_roc)
 # %%
 #
 # Take a look at the MG time series: zoom into the first anomaly
 #
-plot_results_swat(test_X, test_labels, anomaly_score, pl_range = (61000, 63000), plot_signal = True, plot_anomaly_score = False)
+#plot_results_swat(test_X, test_labels, anomaly_score, pl_range = (61000, 63000), plot_signal = True, plot_anomaly_score = False)
 
 # %%
 

@@ -31,19 +31,20 @@ class DataSwat:
         self.training_split = training_split
         self.ratio = ratio
         
-    def build_data(self):
+    def build_data(self, scaler_method=None):
         data = pd.read_csv(self.data_path)
         data = data.rename(columns={"Normal/Attack":"label"})
         data.label[data.label!="Normal"]=1
         data.label[data.label=="Normal"]=0
         data = data.drop(' Timestamp', axis=1)
         #data = data.set_index("Timestamp")
-
-        feature = data.iloc[:,:51]
-        mean_df = feature.mean(axis=0)
-        std_df = feature.std(axis=0)
-        norm_feature = (feature-mean_df)/std_df
-        norm_feature = norm_feature.dropna(axis=1)
+        from sklearn.preprocessing import MinMaxScaler, StandardScaler
+        if scaler_method == 'Standard':
+            scaler=StandardScaler()
+        else:
+            scaler=MinMaxScaler()
+        
+        norm_feature = pd.DataFrame(scaler.fit_transform(data.iloc[:,:51]))
         norm_feature = norm_feature.iloc[:int(self.ratio*len(norm_feature)), :int(self.ratio*norm_feature.shape[1])]
         n_sensor = len(norm_feature.columns)
         train_df = norm_feature.iloc[:int(self.training_split*len(norm_feature))]
